@@ -1,10 +1,5 @@
 <?php
-/**
- * 
- * نوشته شده توسط : https://t.me/devmramir
- * کانال تلگرامی ما : https://t.me/alacode
- * وبسایت ما : https://alateam.ir
- */
+
 declare(strict_types=1);
 
 /**

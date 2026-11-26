@@ -1,12 +1,5 @@
 <?php
 
-/**
- * 
- * نوشته شده توسط : https://t.me/devmramir
- * کانال تلگرامی ما : https://t.me/alacode
- * وبسایت ما : https://alateam.ir
- */
-
 declare(strict_types=1);
 
 /**
@@ -14,10 +7,10 @@ declare(strict_types=1);
  * این سه فایل + Sepehr.php را کنار هم در یک پوشه قرار دهید.
  */
 
-require_once __DIR__ . '/sepehr.php';
+require_once __DIR__ . '/Sepehr.php';
 
 /** شماره ترمینال ۸ رقمی (98000000 فقط نمونه مستند است؛ ترمینال واقعی خود را بگذارید) */
-const SEPEHR_TERMINAL_ID = ''; // شماره ترمینال
+const SEPEHR_TERMINAL_ID = '98000000';
 
 /**
  * آدرس کامل sepehrback.php روی دامنه شما (باید با دامنه سایت یکی باشد).
@@ -32,9 +25,26 @@ const SEPEHR_DATA_DIR = __DIR__ . '/sepehr_data';
 /** حداقل مبلغ مجاز به ریال */
 const SEPEHR_MIN_AMOUNT = 1000;
 
+/**
+ * فقط اگر سرور چند IP دارد: IP ثبت‌شده در سپهر را اینجا بدهید تا درخواست‌ها از همان IP خارج شوند.
+ * مثال: '185.10.20.30'
+ */
+const SEPEHR_BIND_IP = null;
+
+/**
+ * فقط اگر IP ثبت‌شده در سپهر مال یک سرور واسط/پراکسی است.
+ * مثال: 'http://185.10.20.30:3128' یا 'socks5://185.10.20.30:1080'
+ */
+const SEPEHR_PROXY = null;
+
 function sepehr(): Sepehr
 {
-    return new Sepehr(SEPEHR_TERMINAL_ID, sepehr_callback_url());
+    return new Sepehr(
+        terminalId: SEPEHR_TERMINAL_ID,
+        defaultCallback: sepehr_callback_url(),
+        bindIp: SEPEHR_BIND_IP,
+        proxy: SEPEHR_PROXY,
+    );
 }
 
 function sepehr_callback_url(): string

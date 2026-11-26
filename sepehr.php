@@ -1,12 +1,5 @@
 <?php
 
-/**
- * 
- * نوشته شده توسط : https://t.me/devmramir
- * کانال تلگرامی ما : https://t.me/alacode
- * وبسایت ما : https://alateam.ir
- */
-
 declare(strict_types=1);
 
 /**
@@ -240,7 +233,7 @@ final class Sepehr
     /** کدهای خطای Token / Advice / Rollback */
     public const array ERRORS = [
         -1 => 'تراکنش پیدا نشد.',
-        -2 => 'عدم تطابق IP هنگام دریافت توکن / تراکنش قبلا Reverse شده است.',
+        -2 => 'عدم تطابق IP: IP خروجی سرور شما در سپهر ثبت نشده است (یا تراکنش قبلا Reverse شده). IP را با sepehrip.php ببینید و به سپهر اعلام کنید.',
         -3 => 'خطای عمومی (Exception).',
         -4 => 'امکان انجام درخواست برای این تراکنش وجود ندارد (عدم تطابق callback URL).',
         -5 => 'آدرس IP نامعتبر است (در لیست IPهای معرفی‌شده نیست).',
@@ -258,6 +251,8 @@ final class Sepehr
         private readonly ?string $defaultCallback = null,
         private readonly int $timeout = 30,
         private readonly bool $verifySsl = true,
+        private readonly ?string $bindIp = null,  // IP خروجی ثبت‌شده در سپهر (برای سرورهای چند-IP)
+        private readonly ?string $proxy = null,   // پراکسی/سرور واسط که IP آن در سپهر ثبت شده
     ) {
         if (!preg_match('/^\d{8}$/', $terminalId)) {
             throw new SepehrException('شماره ترمینال باید ۸ رقم باشد.');
@@ -826,7 +821,16 @@ final class Sepehr
             CURLOPT_SSL_VERIFYPEER => $this->verifySsl,
             CURLOPT_SSL_VERIFYHOST => $this->verifySsl ? 2 : 0,
             CURLOPT_HTTPHEADER     => ['Content-Type: application/json', 'Accept: application/json'],
+            // سپهر IP ثبت‌شده را به‌صورت IPv4 چک می‌کند؛ اگر سرور IPv6 داشته باشد و
+            // درخواست از آن خارج شود خطای «عدم تطابق IP» می‌گیرید.
+            CURLOPT_IPRESOLVE      => CURL_IPRESOLVE_V4,
         ];
+        if ($this->bindIp !== null && $this->bindIp !== '') {
+            $opts[CURLOPT_INTERFACE] = $this->bindIp;
+        }
+        if ($this->proxy !== null && $this->proxy !== '') {
+            $opts[CURLOPT_PROXY] = $this->proxy;
+        }
         if ($method === 'POST') {
             $opts[CURLOPT_POST]       = true;
             $opts[CURLOPT_POSTFIELDS] = json_encode(
